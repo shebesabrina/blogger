@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe 'Articles Page' do
 
   before(:each) do
-    @article1 = Article.create!(title: 'Title 1', body: 'Body 1')
-    @article2 = Article.create!(title: 'Title 2', body: 'Body 2')
+    @article_1 = Article.create!(title: 'Title 1', body: 'Body 1')
+    @article_2 = Article.create!(title: 'Title 2', body: 'Body 2')
 
     # Important Page Elements
     @new_article_link_text = "Create A New Article"
@@ -15,8 +15,8 @@ RSpec.describe 'Articles Page' do
       it 'should display all articles' do
         visit articles_path
 
-        expect(page).to have_link(@article1.title)
-        expect(page).to have_link(@article2.title)
+        expect(page).to have_link(@article_1.title)
+        expect(page).to have_link(@article_2.title)
       end
 
       it 'should have a link to create a new article' do
@@ -32,20 +32,20 @@ RSpec.describe 'Articles Page' do
       it 'they see a specific articles page' do
         visit articles_path
 
-        click_link(@article1.title)
+        click_link(@article_1.title)
 
-        expect(current_path).to eq("/articles/#{@article1.id}")
+        expect(current_path).to eq("/articles/#{@article_1.id}")
       end
 
       it 'they should see the information for that article' do
         visit articles_path
 
-        click_link(@article1.title)
+        click_link(@article_1.title)
 
-        expect(page).to have_content(@article1.title)
-        expect(page).to have_content(@article1.body)
-        expect(page).to_not have_content(@article2.body)
-        expect(page).to_not have_content(@article2.body)
+        expect(page).to have_content(@article_1.title)
+        expect(page).to have_content(@article_1.body)
+        expect(page).to_not have_content(@article_2.body)
+        expect(page).to_not have_content(@article_2.body)
       end
     end
   end
@@ -77,17 +77,17 @@ RSpec.describe 'Articles Page' do
   end
 
   context '/articles/:id/delete' do
-    describe 'user deletes an article' do
+    describe 'user can delete an article' do
       describe 'they link from the show page' do
         it 'displays all articles without the deleted entry' do
 
-          visit article_path(@article1)
+          visit article_path(@article_1)
 
           click_link 'Delete'
 
           expect(current_path).to eq(articles_path)
-          expect(page).to have_content(@article2.title)
-          expect(page).to_not have_content(@article1.title)
+          expect(page).to have_content(@article_2.title)
+          expect(page).to_not have_content(@article_1.title)
         end
       end
     end
@@ -95,22 +95,26 @@ RSpec.describe 'Articles Page' do
 
   context '/articles/:id/edit' do
     describe 'user edits a specific article' do
-      describe 'they link from from the show page' do
-        it 'displays the edit screen to allow user to change details' do
+      describe 'they link the edit link on the show page' do
+        it 'displays the edit page to allow user to make and view changes' do
 
-          visit article_path(@article1)
+          visit article_path(@article_1)
 
           click_on 'Edit'
+
+          expect(current_path).to eq(edit_article_path(@article_1))
 
           current_title = 'New Title 1'
           current_body = 'New Body 1'
 
-          fill_in 'job[title]', with: current_title
-          fill_in 'job[body]', with: current_body
+          fill_in 'article[title]', with: current_title
+          fill_in 'article[body]', with: current_body
 
-          click_on 'Update'
+          # save_and_open_page
+          click_on 'Update Article'
 
-          expect(current_path).to eq(articles)
+          expect(current_path).to eq(article_path(@article_1))
+          expect(page).to have_content("Article #{current_title} Updated!")
           expect(page).to have_content(current_title)
           expect(page).to have_content(current_body)
         end
